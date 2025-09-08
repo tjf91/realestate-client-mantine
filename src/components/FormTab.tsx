@@ -50,15 +50,74 @@ export default function FormTab({
     initialValues: { ...initial },
 
     validate: {
-      name: (value) => (value ? null : "Name is required"),
+      name: (value) => {
+        if (!value) return "Name is required";
+        if (value.length > 128) return "Name is too long";
+        return null;
+      },
       real_state_type: (value) => {
         if (!value) return "Type is required";
         if (!TYPES.includes(value as RealEstateType)) return "Invalid type";
         return null;
       },
+      street: (value) => {
+        if (!value) return "Street is required";
+        if (value.length > 128) return "Street is too long";
+        return null;
+      },
+      external_number: (value) => {
+        if (!value) return "External Number is required";
+        if (value.length > 12) return "External Number is too long";
+        //test is external number is alphanumeric with dashes
+        if (
+          !/^[a-zA-Z0-9- ]+$/.test(value) &&
+          !/^[0-9- ]+$/.test(value) &&
+          !/^[a-zA-Z- ]+$/.test(value)
+        )
+          return "External Number must be alphanumeric";
+        return null;
+      },
+      internal_number: (value) => {
+        if (value && value.length > 12) return "Internal Number is too long";
+        if (
+          (form.values.real_state_type === "commercial_ground" ||
+            form.values.real_state_type === "department") &&
+          !value
+        )
+          return "Internal Number is required";
+        return null;
+      },
+      neighborhood: (value) => {
+        if (!value) return "Neighborhood is required";
+        if (value.length > 128) return "Neighborhood is too long";
+        return null;
+      },
+      city: (value) => {
+        if (!value) return "City is required";
+        if (value.length > 64) return "City is too long";
+        return null;
+      },
+      country: (value) => {
+        if (!value) return "Country is required";
+        if (value.length === 128) return "Country is too long";
+        return null;
+      },
+      rooms: (value) => {
+        if (!value) return "Rooms is required";
+        return null;
+      },
+      bathrooms: (value) => {
+        if (!value) return "Bathrooms is required";
+        if (
+          form.values.real_state_type !== "land" &&
+          form.values.real_state_type !== "commercial_ground" &&
+          value == 0
+        )
+          return "Bathrooms cannot be 0";
+        return null;
+      },
     },
   });
-  console.log("form values2", form.values);
 
   return (
     <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
@@ -74,6 +133,7 @@ export default function FormTab({
           />
         </Grid.Col>
         <Grid.Col span={4}>
+          {/* TODO make this select */}
           <TextInput
             withAsterisk
             label="Type"
