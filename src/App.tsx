@@ -15,7 +15,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [selected, setSelected] = useState<RealEstate | null>(null);
   const [toast, setToast] = useState<string>("");
-
+  console.log("selected", selected);
   const loadList = async (): Promise<void> => {
     setLoading(true);
     try {
@@ -26,19 +26,19 @@ export default function App() {
     }
   };
 
-  const loadOne = async (id: number): Promise<void> => {
+  const loadOneProperty = async (id: number): Promise<void> => {
     setSelected(null);
     const { data } = await api.get<RealEstate>(`/properties/${id}`);
     setSelected(data);
   };
 
   useEffect(() => {
-    void loadList();
+    loadList();
   }, []);
 
   const onEdit = async (id: number): Promise<void> => {
     setSelectedId(id);
-    await loadOne(id);
+    await loadOneProperty(id);
     setTab("edit");
   };
 
@@ -49,20 +49,36 @@ export default function App() {
     await loadList();
     setTab("list");
   };
+
+  const editSubmit = async (payload: Partial<RealEstate>): Promise<void> => {
+    const { data } = await api.patch<RealEstate>(
+      `/properties/${selectedId}`,
+      payload,
+    );
+    console.log(" data", data);
+    setToast(`Saved #${data.id}`);
+    await loadList();
+    setTab("list");
+  };
+  const createSubmit = async (payload: Partial<RealEstate>): Promise<void> => {
+    const { data } = await api.post<RealEstate>("/properties", payload);
+    setToast(`Created #${data.id}`);
+    await loadList();
+    setSelectedId(data.id);
+    setSelected(data);
+    setTab("list");
+  };
   return (
     <MantineProvider theme={theme}>
       <Modal opened={tab === "create"} onClose={() => setTab("list")}>
+        <FormTab key="create" submitLabel="Create" onSubmit={createSubmit} />
+      </Modal>
+      <Modal opened={tab === "edit"} onClose={() => setTab("list")}>
         <FormTab
-          key="create"
-          submitLabel="Create"
-          onSubmit={async (payload) => {
-            const { data } = await api.post<RealEstate>("/properties", payload);
-            setToast(`Created #${data.id}`);
-            await loadList();
-            setSelectedId(data.id);
-            setSelected(data);
-            setTab("edit");
-          }}
+          key={`edit-${selectedId}`}
+          initial={selected}
+          submitLabel="Save"
+          onSubmit={editSubmit}
         />
       </Modal>
       <div style={{ maxWidth: 960, margin: "0 auto", padding: 24 }}>
@@ -75,11 +91,6 @@ export default function App() {
           <TabButton active={tab === "create"} onClick={() => setTab("create")}>
             Create
           </TabButton>
-          {/* {selectedId && (
-            <TabButton active={tab === "edit"} onClick={() => setTab("edit")}>
-              Edit #{selectedId}
-            </TabButton>
-          )} */}
         </div>
 
         {toast && (
@@ -94,51 +105,13 @@ export default function App() {
             {toast}
           </div>
         )}
-
-        {tab === "list" && (
-          <ListTab
-            rows={rows}
-            loading={loading}
-            onRefresh={loadList}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        )}
-
-        {/* {tab === "create" && (
-          <FormTab
-            key="create"
-            submitLabel="Create"
-            onSubmit={async (payload) => {
-              const { data } = await api.post<RealEstate>(
-                "/properties",
-                payload,
-              );
-              setToast(`Created #${data.id}`);
-              await loadList();
-              setSelectedId(data.id);
-              setSelected(data);
-              setTab("edit");
-            }}
-          />
-        )} */}
-
-        {tab === "edit" && selectedId && (
-          <FormTab
-            key={`edit-${selectedId}`}
-            initial={selected}
-            submitLabel="Save"
-            onSubmit={async (payload) => {
-              const { data } = await api.patch<RealEstate>(
-                `/properties/${selectedId}`,
-                payload,
-              );
-              setToast(`Saved #${data.id}`);
-              await loadList();
-              await loadOne(selectedId);
-            }}
-          />
-        )}
+        <ListTab
+          rows={rows}
+          loading={loading}
+          onRefresh={loadList}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       </div>
     </MantineProvider>
   );

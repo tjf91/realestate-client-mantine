@@ -24,65 +24,19 @@ export default function FormTab({
   submitLabel,
   onSubmit,
 }: FormTabProps) {
-  const [_, setForm] = useState<Partial<RealEstate>>({
-    name: "",
-    real_state_type: "house",
-    street: "",
-    external_number: "",
-    internal_number: "",
-    neighborhood: "",
-    city: "",
-    country: "US",
-    rooms: 0,
-    bathrooms: 0,
-    comments: "",
-    ...(initial ?? {}),
-  });
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (initial) setForm((f) => ({ ...f, ...initial }));
-  }, [initial]);
-
-  const set = (k: keyof RealEstate, v: unknown) =>
-    setForm((f) => ({ ...f, [k]: v as any }));
-
-  //   const validate = (): boolean => {
-  //     const e: Errors = {};
-  //     const type = String(form.real_state_type || "house") as RealEstateType;
-  //     const needsInternal = ["department", "commercial_ground"].includes(type);
-
-  //     if (needsInternal && !form.internal_number) {
-  //       e.internal_number = "Required for department/commercial_ground.";
-  //     }
-  //     if (
-  //       Number(form.bathrooms ?? 0) === 0 &&
-  //       !["land", "commercial_ground"].includes(type)
-  //     ) {
-  //       e.bathrooms = "Zero bathrooms only allowed for land/commercial_ground.";
-  //     }
-  //     if (!/^[A-Za-z0-9-]+$/.test(String(form.external_number || ""))) {
-  //       e.external_number = "Use letters, numbers or dash.";
-  //     }
-  //     if (!/^[A-Za-z]{2}$/.test(String(form.country || ""))) {
-  //       e.country = "Two-letter code (e.g. US).";
-  //     }
-
-  //     setErrors(e);
-  //     return Object.keys(e).length === 0;
-  //   };
-
-  const handleSubmit = async (ev: React.FormEvent) => {
-    ev.preventDefault();
+  const handleSubmit = async (values: any) => {
     // if (!validate()) return;
 
     setSubmitting(true);
     try {
       const payload: Partial<RealEstate> = {
-        ...form,
-        country: String(_.country || "").toUpperCase(),
+        ...values,
+        country: String(values.country || "").toUpperCase(),
       };
+      console.log("payload", payload);
       await onSubmit(payload);
       setErrors({});
     } catch (err) {
@@ -93,17 +47,21 @@ export default function FormTab({
   };
   const form = useForm({
     mode: "uncontrolled",
-    initialValues: {
-      email: "",
-      termsOfService: false,
-    },
+    initialValues: { ...initial },
 
     validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      name: (value) => (value ? null : "Name is required"),
+      real_state_type: (value) => {
+        if (!value) return "Type is required";
+        if (!TYPES.includes(value as RealEstateType)) return "Invalid type";
+        return null;
+      },
     },
   });
+  console.log("form values2", form.values);
+
   return (
-    <form onSubmit={form.onSubmit((values) => console.log(values))}>
+    <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
       <Grid grow gutter="sm">
         <Grid.Col span={4}>
           {" "}
@@ -111,7 +69,7 @@ export default function FormTab({
             withAsterisk
             label="Name"
             placeholder="Name"
-            key={form.key("name")}
+            key={form.values.id}
             {...form.getInputProps("name")}
           />
         </Grid.Col>
