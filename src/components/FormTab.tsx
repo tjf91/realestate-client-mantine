@@ -1,7 +1,7 @@
 // src/components/FormTab.tsx
 import React, { useEffect, useState } from "react";
 import type { RealEstate, RealEstateType } from "../types";
-import { Button, Grid, Input, TextInput } from "@mantine/core";
+import { Button, Grid, Input, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 interface FormTabProps {
@@ -143,7 +143,7 @@ export default function FormTab({
             {...form.getInputProps("external_number")}
           />
         </Grid.Col>
-        <Grid.Col span={4}>
+        <Grid.Col span={5}>
           <TextInput
             label="Internal Number"
             placeholder="Internal Number"
@@ -160,44 +160,53 @@ export default function FormTab({
             {...form.getInputProps("neighborhood")}
           />
         </Grid.Col>
+        <Grid.Col span={4}>
+          <TextInput
+            withAsterisk
+            label="City"
+            placeholder="City"
+            key={form.key("city")}
+            {...form.getInputProps("city")}
+          />
+        </Grid.Col>
+        <Grid.Col span={4}>
+          <TextInput
+            withAsterisk
+            label="Country"
+            placeholder="Country"
+            key={form.key("country")}
+            {...form.getInputProps("country")}
+          />
+        </Grid.Col>
+        <Grid.Col span={4}>
+          <TextInput
+            withAsterisk
+            label="Rooms"
+            placeholder="Rooms"
+            key={form.key("rooms")}
+            {...form.getInputProps("rooms")}
+          />
+        </Grid.Col>
+        <Grid.Col span={4}>
+          <TextInput
+            withAsterisk
+            label="Bathrooms"
+            placeholder="Bathrooms"
+            key={form.key("bathrooms")}
+            {...form.getInputProps("bathrooms")}
+          />
+        </Grid.Col>
+        <Grid.Col span={12}>
+          <TextInput
+            label="Comments"
+            placeholder="Comments"
+            key={form.key("comments")}
+            {...form.getInputProps("comments")}
+          />
+        </Grid.Col>
       </Grid>
-      <Grid.Col span={4}>
-        <TextInput
-          withAsterisk
-          label="City"
-          placeholder="City"
-          key={form.key("city")}
-          {...form.getInputProps("city")}
-        />
-      </Grid.Col>
-      <TextInput
-        withAsterisk
-        label="Country"
-        placeholder="Country"
-        key={form.key("country")}
-        {...form.getInputProps("country")}
-      />
-      <TextInput
-        withAsterisk
-        label="Rooms"
-        placeholder="Rooms"
-        key={form.key("rooms")}
-        {...form.getInputProps("rooms")}
-      />
-      <TextInput
-        withAsterisk
-        label="Bathrooms"
-        placeholder="Bathrooms"
-        key={form.key("bathrooms")}
-        {...form.getInputProps("bathrooms")}
-      />
-      <TextInput
-        label="Comments"
-        placeholder="Comments"
-        key={form.key("comments")}
-        {...form.getInputProps("comments")}
-      />
-      <Button type="submit" loading={submitting}>
+
+      <Button style={{ marginTop: 16 }} type="submit" loading={submitting}>
         {submitLabel}
       </Button>
     </form>
