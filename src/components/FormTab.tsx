@@ -1,7 +1,7 @@
 // src/components/FormTab.tsx
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import type { RealEstate, RealEstateType } from "../types";
-import { Button, Grid, Input, Stack, TextInput } from "@mantine/core";
+import { Button, Grid, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 interface FormTabProps {
@@ -24,7 +24,7 @@ export default function FormTab({
   submitLabel,
   onSubmit,
 }: FormTabProps) {
-  const [errors, setErrors] = useState<Errors>({});
+  const [_, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const handleSubmit = async (values: any) => {
@@ -229,9 +229,4 @@ export default function FormTab({
       </Button>
     </form>
   );
-}
-
-function Error({ text }: { text?: string }) {
-  if (!text) return null;
-  return <div style={{ color: "crimson", fontSize: 12 }}>{text}</div>;
 }
